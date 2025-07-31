@@ -10,4 +10,6 @@ urlpatterns = [
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
     # Оновлення профілю користувача
     path('profile/edit/', views.UserProfileUpdateView.as_view(), name='user_profile_edit'),
+    # Реєстрація
+    path('signup/', views.SignUpView.as_view(), name='signup'),
 ]

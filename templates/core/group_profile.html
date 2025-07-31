@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block content %}
+    <h1 class="my-4">{{ group.name }}</h1>
+    {% if group.logo %}
+        <img src="{{ group.logo.url }}" class="img-fluid mb-3" alt="{{ group.name }}" style="max-width: 200px;">
+    {% endif %}
+    <p>{{ group.description|linebreaks }}</p>
+    <div class="mt-4">
+        <h3>Ласкаво просимо до порталу!</h3>
+        <p>Використовуйте меню для доступу до опитувань, голосувань, форуму та інших сторінок.</p>
+    </div>
+{% endblock %}
