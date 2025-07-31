@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, CreateView
 from .models import GroupProfile, UserProfile
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .forms import SignUpForm
+from django.contrib.auth import login
 
 
 # Відображає профіль групи (один для всього порталу)
@@ -40,4 +42,17 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Профіль успішно оновлено!')
+        return super().form_valid(form)
+
+
+# Створення нового користувача (реєстрація)
+class SignUpView(CreateView):
+    form_class = SignUpForm
+    template_name = 'core/signup.html'
+    success_url = reverse_lazy('core:user_profile')
+
+    def form_valid(self, form):
+        user = form.save(commit=True)
+        login(self.request, user)  # Автоматичний вхід після реєстрації
+        messages.success(self.request, 'Реєстрація успішна!')
         return super().form_valid(form)
