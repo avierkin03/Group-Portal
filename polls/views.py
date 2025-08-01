@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from .forms import PollForm, PollOptionFormSet
 
 # Список активних опитувань
 class PollListView(ListView):
@@ -33,7 +34,7 @@ class PollDetailView(DetailView):
 # Створення опитувань (доступно лише для адмінів/модераторів)
 class PollCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Poll
-    fields = ['title', 'description', 'is_active']
+    form_class = PollForm
     template_name = 'polls/poll_form.html'
     success_url = reverse_lazy('polls:poll_list')
 
@@ -41,10 +42,32 @@ class PollCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         # Лише адміни та модератори можуть створювати опитування
         return self.request.user.profile.role in ['admin', 'moderator']
 
+    # додаємо PollOptionFormSet до контексту шаблону
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = PollOptionFormSet(self.request.POST, instance=self.object)
+        else:
+            context['formset'] = PollOptionFormSet(instance=self.object)
+        return context
+
+    # перевіряємо валідність formset і зберігаємо варіанти відповідей після збереження опитування
     def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        messages.success(self.request, 'Опитування успішно створено!')
-        return super().form_valid(form)
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            # Встановлюємо created_by як поточного користувача
+            form.instance.created_by = self.request.user
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            messages.success(self.request, 'Опитування та варіанти відповідей успішно створено!')
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 # Обробка голосування, із захистом від повторного голосування
