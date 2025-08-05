@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Голосування{% endblock %}
+{% block content %}
+    <h1 class="my-4">Голосування</h1>
+    <p class="text-muted">Тут ви можете брати участь у голосуваннях, які впливають на рішення групи. Ви можете змінювати свій вибір.</p>
+    {% if votes %}
+        <ul class="list-group mb-4">
+            {% for vote in votes %}
+                <li class="list-group-item">
+                    <a href="{% url 'voting:vote_detail' vote.pk %}">{{ vote.title }}</a>
+                    <small class="text-muted">Створено: {{ vote.created_at|date:"d.m.Y H:i" }}</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="alert alert-info">Наразі немає активних голосувань.</p>
+    {% endif %}
+    {% if user.is_authenticated and user.profile.role in 'admin,moderator' %}
+        <a href="{% url 'voting:vote_create' %}" class="btn btn-primary">Створити голосування</a>
+    {% endif %}
+{% endblock %}

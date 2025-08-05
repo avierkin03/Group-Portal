@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ vote.title }}{% endblock %}
+{% block content %}
+    <h1 class="my-4">{{ vote.title }}</h1>
+    {% if vote.description %}
+        <p>{{ vote.description|linebreaks }}</p>
+    {% endif %}
+    <p class="text-muted">Створено: {{ vote.created_at|date:"d.m.Y H:i" }} | Автор: {{ vote.created_by.username }}</p>
+
+    {% if user.is_authenticated %}
+        <h5>Проголосувати:</h5>
+        <form method="post" action="{% url 'voting:vote_cast' vote.pk %}">
+            {% csrf_token %}
+            {% for option in vote.options.all %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="option" id="option{{ option.id }}" value="{{ option.id }}" {% if user_vote and user_vote.option == option %}checked{% endif %} required>
+                    <label class="form-check-label" for="option{{ option.id }}">
+                        {{ option.text }}
+                    </label>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Проголосувати</button>
+        </form>
+        <h5 class="mt-4">Результати:</h5>
+        <ul class="list-group mb-4">
+            {% for option in vote.options.all %}
+                <li class="list-group-item">
+                    {{ option.text }}: {{ option.vote_count }} голосів
+                    <div class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" style="width: {% widthratio option.vote_count vote.votes.count 100 %}%;" aria-valuenow="{% widthratio option.vote_count vote.votes.count 100 %}" aria-valuemin="0" aria-valuemax="100">
+                            {% widthratio option.vote_count vote.votes.count 100 %}%
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-warning">
+            <p>Будь ласка, <a href="{% url 'login' %}">увійдіть</a>, щоб проголосувати.</p>
+        </div>
+    {% endif %}
+    <a href="{% url 'voting:vote_list' %}" class="btn btn-secondary mt-3">Назад до списку</a>
+{% endblock %}
