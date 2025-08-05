@@ -1,10 +1,11 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Vote, VoteOption, UserVote
 from django.http import HttpResponseRedirect
+from .forms import VoteForm, VoteOptionFormSet
 
 # Список активних голосувань
 class VoteListView(ListView):
@@ -32,18 +33,39 @@ class VoteDetailView(DetailView):
 # Створення голосувань (доступно лише для адмінів/модераторів)
 class VoteCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Vote
-    fields = ['title', 'description', 'is_active']
+    form_class = VoteForm
     template_name = 'voting/vote_form.html'
     success_url = reverse_lazy('voting:vote_list')
 
     def test_func(self):
         return self.request.user.profile.role in ['admin', 'moderator']
 
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        messages.success(self.request, 'Голосування успішно створено!')
-        return super().form_valid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = VoteOptionFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            context['formset'] = VoteOptionFormSet(instance=self.object)
+        return context
 
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            form.instance.created_by = self.request.user
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            messages.success(self.request, 'Голосування та варіанти відповідей успішно створено!')
+            return super().form_valid(form)
+        else:
+            messages.error(self.request, 'Помилка: перевірте варіанти відповідей.')
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Помилка: перевірте дані форми.')
+        return self.render_to_response(self.get_context_data(form=form))
+    
 
 # Обробка голосування з підтримкою переголосування (видаляє попередній голос)
 class VoteCastView(LoginRequiredMixin, View):
@@ -52,12 +74,27 @@ class VoteCastView(LoginRequiredMixin, View):
         option_id = request.POST.get('option')
         option = get_object_or_404(VoteOption, pk=option_id, vote=vote)
         
-        # Видаляємо попередній голос (для переголосування)
-        UserVote.objects.filter(vote=vote, user=request.user).delete()
+        vote_cast, created = UserVote.objects.get_or_create(
+            user=request.user,
+            vote=vote,
+            defaults={'option': option}
+        )
         
-        # Створюємо новий голос
-        UserVote.objects.create(vote=vote, option=option, user=request.user)
-        option.vote_count += 1
-        option.save()
+        if created:
+            # Новий голос: збільшуємо vote_count для вибраного варіанту
+            option.vote_count += 1
+            option.save()
+        else:
+            # Переголосування: зменшуємо vote_count попереднього варіанту
+            if vote_cast.option != option:
+                vote_cast.option.vote_count -= 1
+                vote_cast.option.save()
+                # Збільшуємо vote_count для нового варіанту
+                option.vote_count += 1
+                option.save()
+                # Оновлюємо вибір
+                vote_cast.option = option
+                vote_cast.save()
+        
         messages.success(request, 'Ваш голос зараховано!')
-        return HttpResponseRedirect(reverse_lazy('voting:vote_detail', kwargs={'pk': pk}))
+        return redirect('voting:vote_detail', pk=vote.pk)
