@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Підтвердити видалення повідомлення{% endblock %}
+{% block content %}
+    <h1 class="my-4">Підтвердити видалення</h1>
+    <p>Ви впевнені, що хочете видалити це повідомлення?</p>
+    {% if object.content %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="card-text">{{ object.content|truncatewords:50|linebreaksbr }}</p>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Повідомлення не містить тексту.</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Так, видалити</button>
+        <a href="{% url 'forum:topic_detail' object.topic.pk %}" class="btn btn-secondary">Скасувати</a>
+    </form>
+{% endblock %}

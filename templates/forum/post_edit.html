@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Додати повідомлення до {{ topic.title }}{% endblock %}
+{% block title %}Редагувати повідомлення{% endblock %}
 {% block content %}
-    <h1 class="my-4">Додати повідомлення до "{{ topic.title }}"</h1>
+    <h1 class="my-4">Редагувати повідомлення</h1>
     <form method="post" class="col-md-8">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -10,7 +10,7 @@
             {{ form.content }}
             {{ form.content.errors }}
         </div>
-        <button type="submit" class="btn btn-primary">Опублікувати</button>
-        <a href="{% url 'forum:topic_detail' topic.pk %}" class="btn btn-secondary">Скасувати</a>
+        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+        <a href="{% url 'forum:topic_detail' object.topic.pk %}" class="btn btn-secondary">Скасувати</a>
     </form>
 {% endblock %}

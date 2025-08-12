@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Форум{% endblock %}
+{% block content %}
+    <h1 class="my-4">Форум</h1>
+    <p class="text-muted">Обговорюйте актуальні теми з іншими учасниками групи.</p>
+    {% if topics %}
+        <ul class="list-group mb-4">
+            {% for topic in topics %}
+                <li class="list-group-item">
+                    <a href="{% url 'forum:topic_detail' topic.pk %}">{{ topic.title }}</a>
+                    <small class="text-muted">
+                        Створено: {{ topic.created_at|date:"d.m.Y H:i" }} | 
+                        Автор: {{ topic.created_by.username }} | 
+                        Повідомлень: {{ topic.posts.count }}
+                    </small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="alert alert-info">Наразі немає тем для обговорення.</p>
+    {% endif %}
+    {% if user.is_authenticated and user.profile.role in 'admin,moderator' %}
+        <a href="{% url 'forum:topic_create' %}" class="btn btn-primary">Створити тему</a>
+    {% endif %}
+{% endblock %}
