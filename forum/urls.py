@@ -4,11 +4,15 @@ from . import views
 app_name = 'forum'
 urlpatterns = [
     # Список тем форуму
-    path('', views.ForumThreadListView.as_view(), name='thread_list'),
+    path('', views.TopicListView.as_view(), name='topic_list'),
     # Деталі теми форуму
-    path('thread/<int:pk>/', views.ForumThreadDetailView.as_view(), name='thread_detail'),
+    path('<int:pk>/', views.TopicDetailView.as_view(), name='topic_detail'),
     # Створення нової теми
-    path('thread/create/', views.ForumThreadCreateView.as_view(), name='thread_create'),
+    path('create/', views.TopicCreateView.as_view(), name='topic_create'),
     # Додавання повідомлення до теми
-    path('thread/<int:pk>/post/create/', views.ForumPostCreateView.as_view(), name='post_create'),
+    path('<int:pk>/post/', views.PostCreateView.as_view(), name='post_create'),
+    # Редагування повідомлення до теми (topic_pk для контексту і pk для ID повідомлення)
+    path('<int:topic_pk>/post/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post_edit'),
+    # Видалення повідомлення у теми (topic_pk для контексту і pk для ID повідомлення)
+    path('<int:topic_pk>/post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
 ]

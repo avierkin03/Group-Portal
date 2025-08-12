@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'markdown_deux',
     'core',
     'forum',
     'pages',
@@ -136,3 +137,19 @@ MEDIA_ROOT = BASE_DIR / 'static/images'
 
 LOGIN_REDIRECT_URL = 'core:user_profile'
 LOGOUT_REDIRECT_URL = 'core:group_profile'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
