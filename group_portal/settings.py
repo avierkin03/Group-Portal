@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'pages',
     'polls',
     'voting',
+    'events',
 ]
 
 MIDDLEWARE = [
