@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% if form.instance.pk %}Редагувати матеріал{% else %}Додати матеріал{% endif %}</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Зберегти</button>
+    </form>
+    <a href="{% url 'materials:material-list' %}">Назад до списку матеріалів</a>
+{% endblock %}

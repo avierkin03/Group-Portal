@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'polls',
     'voting',
     'events',
+    'materials'
 ]
 
 MIDDLEWARE = [
@@ -134,7 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'static/images'
+MEDIA_ROOT = BASE_DIR / 'static/media'
 
 LOGIN_REDIRECT_URL = 'core:user_profile'
 LOGOUT_REDIRECT_URL = 'core:group_profile'
