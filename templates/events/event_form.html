@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% if form.instance.pk %}Редагувати подію{% else %}Додати подію{% endif %}</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Зберегти</button>
+    </form>
+    <a href="{% url 'events:event-list' %}">Назад до списку подій</a>
+{% endblock %}
