@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Підтвердити видалення проєкту{% endblock %}
+{% block content %}
+    <h1 class="my-4">Підтвердити видалення</h1>
+    <p>Ви впевнені, що хочете видалити проєкт "{{ object.title }}"?</p>
+    {% if object.description %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="card-text">{{ object.description|truncatewords:20 }}</p>
+            </div>
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Так, видалити</button>
+        <a href="{% url 'portfolio:portfolio_list' %}" class="btn btn-secondary">Скасувати</a>
+    </form>
+{% endblock %}
