@@ -6,6 +6,7 @@ from .models import GroupProfile, UserProfile
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .forms import SignUpForm
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 
 
 # Відображає профіль групи (один для всього порталу)
@@ -17,6 +18,12 @@ class GroupProfileView(DetailView):
     def get_object(self):
         # Отримуємо перший профіль групи (припускаємо, що є лише один)
         return GroupProfile.objects.first()
+    
+    # Додаємо список користувачів
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.filter(profile__role__in=['member', 'moderator', 'admin']).order_by('username')
+        return context
 
 
 # Показує профіль поточного користувача
@@ -28,6 +35,11 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     def get_object(self):
         # Повертаємо профіль поточного користувача
         return self.request.user.profile
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['default_avatar_url'] = '/static/media/avatars/default_avatar.png'  # Відносний шлях
+        return context
 
 
 # Дозволяє користувачу редагувати власний профіль (біографію, аватар)
