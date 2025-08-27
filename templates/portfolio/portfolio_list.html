@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Моє портфоліо{% endblock %}
+{% block content %}
+    <h1 class="my-4">Моє портфоліо</h1>
+    {% if portfolio_items %}
+        <div class="row">
+            {% for item in portfolio_items %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            {% if item.screenshot %}
+                                <img src="{{ item.screenshot.url }}" class="card-img-top img-fluid" alt="{{ item.title }}">
+                            {% endif %}
+                            <h5 class="card-title">{{ item.title }}</h5>
+                            <p class="card-text">{{ item.description|truncatewords:20 }}</p>
+                            {% if item.link %}
+                                <a href="{{ item.link }}" class="btn btn-sm btn-primary" target="_blank">Переглянути</a>
+                            {% endif %}
+                            {% if item.file %}
+                                <a href="{{ item.file.url }}" class="btn btn-sm btn-secondary" download>Завантажити файл</a>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer text-muted">
+                            Створено: {{ item.created_at|date:"d.m.Y H:i" }}
+                            <a href="{% url 'portfolio:portfolio_edit' item.pk %}" class="btn btn-sm btn-secondary float-end">Редагувати</a>
+                            <a href="{% url 'portfolio:portfolio_delete' item.pk %}" class="btn btn-sm btn-danger float-end me-2">Видалити</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Попередня">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Наступна">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <p class="alert alert-info">У вашому портфоліо ще немає проєктів.</p>
+    {% endif %}
+    <a href="{% url 'portfolio:portfolio_create' %}" class="btn btn-primary mt-3">Додати проєкт</a>
+{% endblock %}
