@@ -62,8 +62,8 @@ ROOT_URLCONF = 'group_portal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],   # Додаємо базову папку templates
-        'APP_DIRS': True,                   # Дозволяє Django шукати шаблони в папках templates додатків
+        'DIRS': [BASE_DIR / 'templates'],   
+        'APP_DIRS': True,                   
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
