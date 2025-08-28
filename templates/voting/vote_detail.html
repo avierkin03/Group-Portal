@@ -26,11 +26,6 @@
             {% for option in vote.options.all %}
                 <li class="list-group-item">
                     {{ option.text }}: {{ option.vote_count }} голосів
-                    <div class="progress mt-2">
-                        <div class="progress-bar" role="progressbar" style="width: {% widthratio option.vote_count vote.votes.count 100 %}%;" aria-valuenow="{% widthratio option.vote_count vote.votes.count 100 %}" aria-valuemin="0" aria-valuemax="100">
-                            {% widthratio option.vote_count vote.votes.count 100 %}%
-                        </div>
-                    </div>
                 </li>
             {% endfor %}
         </ul>
